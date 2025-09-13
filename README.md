@@ -12,10 +12,16 @@
 `reverse` работает с задержкой. Попытаемся исправить виртуализацией!
 
 Вычисления `calcIndexRange` (8:46):
-![alt text](image.png)
+![alt text](./public/markdown_access/image.png)
 
 ## Когда использовать?
 
 
 
 ### Вначале нужно разобраться в devtools и понять как тестировать производительность
+
+## ВИДЕО:
+<video width="600" controls>
+  <source src="./public/markdown_access/[LESSON 1] Пишем библиотеку для виртуального скролла с нуля React.mp4" type="video/mp4">
+  Ваш браузер не поддерживает видео тег.
+</video>

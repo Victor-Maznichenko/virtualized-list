@@ -13,6 +13,7 @@ const ListProperties = {
 };
 
 function App() {
+   const [isScrolling, setIsScrolling] = useState();
    const [scrollTop, setScrollTop] = useState(0);
    const [listItems, setListItems] = useState(itemsData);
    const scrollContainerElRef = useRef<HTMLDivElement>(null);
