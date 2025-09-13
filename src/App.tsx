@@ -1,5 +1,6 @@
-import { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
+import { useVirtualizedList } from "./hooks";
 
 const itemsData = Array.from({ length: 20_000 }, (_, i) => ({
    id: Math.random().toString(36).slice(2),
@@ -13,57 +14,12 @@ const ListProperties = {
 };
 
 function App() {
-   const [isScrolling, setIsScrolling] = useState();
-   const [scrollTop, setScrollTop] = useState(0);
    const [listItems, setListItems] = useState(itemsData);
-   const scrollContainerElRef = useRef<HTMLDivElement>(null);
-   const totalListHeight = ListProperties.itemHeight * listItems.length;
-
-   /* 
-    UseLayoutEffect используем чтобы не было морганий экрана (момент 6:10 непонятен из видео)
-   */
-   useLayoutEffect(() => {
-      const scrollContainerEl = scrollContainerElRef.current;
-
-      if (!scrollContainerEl) return;
-
-      const handleScroll = () => setScrollTop(scrollContainerEl.scrollTop);
-
-      handleScroll();
-      scrollContainerEl.addEventListener("scroll", handleScroll);
-      return () => scrollContainerEl.removeEventListener("scroll", handleScroll);
-   }, []);
-
-   /* 
-    На основе полученного scrollTop вычислим range index-ов которые мы должны рендерить
-   */
-   const calcItemsProperties = useMemo(() => {
-      /* Первоначальная логика */
-      const rangeStart = scrollTop;
-      const rangeEnd = scrollTop + ListProperties.containerHeight;
-
-      let startIndex = Math.floor(rangeStart / ListProperties.itemHeight);
-      let endIndex = Math.ceil(rangeEnd / ListProperties.itemHeight);
-
-      /* Логика с overscan */
-      const lastIndex = listItems.length - 1;
-      startIndex = Math.max(0, startIndex - ListProperties.overscan);
-      endIndex = Math.min(lastIndex, endIndex + ListProperties.overscan);
-      console.log(startIndex, endIndex);
-
-      let ItemsProperties = [];
-
-      for (let index = startIndex; index <= endIndex; index++) {
-         ItemsProperties.push({
-            index,
-            offsetTop: index * ListProperties.itemHeight,
-         });
-      }
-
-      return ItemsProperties;
-   }, [scrollTop, listItems.length]);
-
-   //  const itemsToRender = listItems.slice(startIndex, endIndex + 1); // Так работает slice что надо писать + 1
+   const { totalListHeight, ItemsProperties, scrollContainerElRef } = useVirtualizedList({
+      itemsLength: listItems.length,
+      itemHeight: ListProperties.itemHeight,
+      containerHeight: ListProperties.containerHeight,
+   });
 
    const handleReverseList = () => setListItems((items) => items.slice().reverse());
 
@@ -90,7 +46,7 @@ function App() {
             }}
          >
             <div style={{ height: totalListHeight }}>
-               {calcItemsProperties.map(({ index, offsetTop }) => {
+               {ItemsProperties.map(({ index, offsetTop }) => {
                   const { id, text } = listItems[index];
 
                   return (
